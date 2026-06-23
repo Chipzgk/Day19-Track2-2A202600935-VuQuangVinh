@@ -146,8 +146,14 @@ class Searcher:
         ]
 
     def _search_semantic(self, query: str, top_k: int) -> list[SearchHit]:
+        # assert self.client is not None and self.embedder is not None
+        # q_vec = next(self.embedder.embed([query])).tolist()
         assert self.client is not None and self.embedder is not None
-        q_vec = next(self.embedder.embed([query])).tolist()
+        if not hasattr(self, '_embed_cache'):
+            self._embed_cache = {}
+        if query not in self._embed_cache:
+            self._embed_cache[query] = next(self.embedder.embed([query])).tolist()
+        q_vec = self._embed_cache[query]
         result = self.client.query_points(
             collection_name=COLLECTION,
             query=q_vec,

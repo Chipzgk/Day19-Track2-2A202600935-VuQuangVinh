@@ -2,6 +2,15 @@
 # jupyter:
 #   jupytext:
 #     formats: py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.4
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
 # %% [markdown]
@@ -153,3 +162,17 @@ print("API server stopped")
 # These are *judgement* decisions: nếu rubric chỉ check P99, optimization sẽ
 # hướng vào tail latency, không phải mean. Đừng nhờ AI quyết định metric —
 # chỉ nhờ implement metric đã chọn.
+
+# %%
+import json, httpx
+from pathlib import Path
+
+ROOT = Path("..") 
+DATA = ROOT / "data"
+golden = [json.loads(l) for l in (DATA / "golden_set.jsonl").open(encoding="utf-8")]
+
+for q in golden:
+    httpx.get(f"{URL}/search", params={"q": q["query"], "mode": "hybrid"}, timeout=30)
+print(f"Warmup done — {len(golden)} queries cached")
+
+# %%
